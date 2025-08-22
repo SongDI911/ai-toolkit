@@ -17,7 +17,7 @@ from toolkit.dequantize import patch_dequantization_on_save
 from toolkit.accelerator import get_accelerator, unwrap_model
 from optimum.quanto import freeze, QTensor
 from toolkit.util.mask import generate_random_mask, random_dialate_mask
-from toolkit.util.quantize import quantize, get_qtype
+from toolkit.util.quantize import quantize, get_qtype, quantize_model
 from transformers import T5TokenizerFast, T5EncoderModel, CLIPTextModel, CLIPTokenizer
 from einops import rearrange, repeat
 import random
@@ -173,7 +173,7 @@ class QwenImageEditModel(BaseModel):
         self.print_and_status_update("Model Loaded")
 
     def get_generation_pipeline(self):
-        scheduler = QwenImageModel.get_train_scheduler()
+        scheduler = QwenImageEditModel.get_train_scheduler()
 
         pipeline: QwenImageEditPipeline = QwenImageEditPipeline(
             scheduler=scheduler,
