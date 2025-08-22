@@ -57,6 +57,22 @@ export const modelArchs: ModelArch[] = [
     disableSections: ['network.conv'],
     additionalSections: ['datasets.control_path', 'sample.ctrl_img'],
   },
+      {
+    name: 'qwen_image_edit',
+    label: 'qwen_image_edit',
+    group: 'image',
+    defaults: {
+      // default updates when [selected, unselected] in the UI
+      'config.process[0].model.name_or_path': ['Qwen/Qwen-Image-Edit', defaultNameOrPath],
+      'config.process[0].model.quantize': [true, false],
+      'config.process[0].model.quantize_te': [true, false],
+      'config.process[0].sample.sampler': ['flowmatch', 'flowmatch'],
+      'config.process[0].train.noise_scheduler': ['flowmatch', 'flowmatch'],
+      'config.process[0].train.timestep_type': ['weighted', 'sigmoid'],
+    },
+    disableSections: ['network.conv'],
+    additionalSections: ['datasets.control_path', 'sample.ctrl_img'],
+  },
   {
     name: 'flex1',
     label: 'Flex.1',

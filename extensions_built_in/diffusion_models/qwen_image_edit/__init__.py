@@ -1,0 +1,1 @@
+from .qwen_image_edit import QwenImageEditModel
