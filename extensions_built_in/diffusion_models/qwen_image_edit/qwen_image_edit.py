@@ -23,7 +23,7 @@ from einops import rearrange, repeat
 import random
 import torch.nn.functional as F
 from diffusers import QwenImageEditPipeline, QwenImageTransformer2DModel, AutoencoderKLQwenImage
-from transformers import Qwen2_5_VLForConditionalGeneration, Qwen2Tokenizer
+from transformers import Qwen2_5_VLForConditionalGeneration, Qwen2Tokenizer, Qwen2VLProcessor
 from tqdm import tqdm
 
 
@@ -63,14 +63,22 @@ class QwenImageEditModel(BaseModel):
         self.is_flow_matching = True
         self.is_transformer = True
         self.target_lora_modules = ['QwenImageTransformer2DModel']
+        self.processor = None
 
-    # static method to get the noise scheduler
+        # static method to get the noise scheduler
     @staticmethod
     def get_train_scheduler():
         return CustomFlowMatchEulerDiscreteScheduler(**scheduler_config)
 
     def get_bucket_divisibility(self):
         return 16
+
+    def get_processor(self):
+        if not self.processor:
+            self.processor = Qwen2VLProcessor.from_pretrained(
+            "Qwen/Qwen2.5-VL-7B-Instruct", subfolder="processor", use_fast=True
+        )
+        return self.processor
 
     def load_model(self):
         dtype = self.torch_dtype
@@ -142,6 +150,7 @@ class QwenImageEditModel(BaseModel):
             tokenizer=tokenizer,
             vae=vae,
             transformer=None,
+            processor=self.get_processor(),
         )
         # for quantization, it works best to do these after making the pipe
         pipe.text_encoder = text_encoder
@@ -180,7 +189,8 @@ class QwenImageEditModel(BaseModel):
             text_encoder=unwrap_model(self.text_encoder[0]),
             tokenizer=self.tokenizer[0],
             vae=unwrap_model(self.vae),
-            transformer=unwrap_model(self.transformer)
+            transformer=unwrap_model(self.transformer),
+            processor=self.get_processor(),
         )
 
         pipeline = pipeline.to(self.device_torch)
